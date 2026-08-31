@@ -5,7 +5,11 @@ import axios from 'axios';
 import { formatSize, getFileIconInfo } from '../utils/formatters';
 
 // Public endpoint - no auth token needed
-const publicApi = axios.create({ baseURL: 'http://localhost:8080/api' });
+const publicApi = axios.create({
+
+  baseURL: 'https://cloudbackend-ygbk.onrender.com/api',
+
+});
 
 export default function PublicShare() {
   const { token } = useParams();
