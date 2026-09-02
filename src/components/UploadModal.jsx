@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { X, Upload, CheckCircle, AlertCircle, Loader2, CloudUpload } from 'lucide-react';
+import { X, Upload, CheckCircle, AlertCircle, Loader2, CloudUpload, File } from 'lucide-react';
 import { fileService } from '../services/fileService';
 import { formatSize } from '../utils/formatters';
 import toast from 'react-hot-toast';
@@ -51,7 +51,7 @@ export default function UploadModal({ isOpen, onClose, onUploadComplete, current
         });
 
         // Simulate progress
-        updatedFiles[i].progress = 80;
+        updatedFiles[i].progress = 85;
         setFiles([...updatedFiles]);
 
         // Step 3: Notify backend
@@ -87,19 +87,23 @@ export default function UploadModal({ isOpen, onClose, onUploadComplete, current
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-backdrop">
-      <div className="glass w-full max-w-lg rounded-2xl p-6 animate-fadeInUp border border-white/10 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fadeInUp">
+      <div className="w-full max-w-lg rounded-3xl border border-border bg-surface/95 p-6 shadow-2xl backdrop-blur-2xl">
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600/20">
-              <CloudUpload className="h-5 w-5 text-indigo-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-500">
+              <CloudUpload className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-semibold text-white">Upload Files</h2>
+            <div>
+              <h2 className="text-base font-bold text-text-primary">Upload Files</h2>
+              <p className="text-xs text-text-muted">Add files to your cloud storage</p>
+            </div>
           </div>
           <button
             onClick={handleClose}
-            className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white transition-colors"
+            className="rounded-xl p-1.5 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
@@ -108,43 +112,59 @@ export default function UploadModal({ isOpen, onClose, onUploadComplete, current
         {/* Drop zone */}
         <div
           {...getRootProps()}
-          className={`mb-4 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/10 py-10 text-center transition-all ${
-            isDragActive ? 'drop-zone-active' : 'hover:border-indigo-500/50 hover:bg-white/[0.02]'
+          className={`mb-4 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-9 px-4 text-center transition-all ${
+            isDragActive
+              ? 'drop-zone-active'
+              : 'border-border bg-surface-2/40 hover:border-primary/50 hover:bg-surface-2/70'
           }`}
         >
           <input {...getInputProps()} />
-          <CloudUpload className={`h-10 w-10 ${isDragActive ? 'text-indigo-400' : 'text-slate-600'}`} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <CloudUpload className={`h-6 w-6 ${isDragActive ? 'animate-bounce' : ''}`} />
+          </div>
           <div>
-            <p className="text-sm font-medium text-slate-300">
-              {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
+            <p className="text-sm font-semibold text-text-primary">
+              {isDragActive ? 'Drop files right here...' : 'Drag & drop files here, or browse'}
             </p>
-            <p className="text-xs text-slate-600 mt-1">or click to browse</p>
+            <p className="text-xs text-text-muted mt-1">Supports documents, photos, audio, video, and archives</p>
           </div>
         </div>
 
         {/* File list */}
         {files.length > 0 && (
-          <div className="mb-4 space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div className="mb-5 space-y-2 max-h-48 overflow-y-auto pr-1">
             {files.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5">
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-xl border border-border bg-surface-2/60 px-3.5 py-2.5 transition-all"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-3 text-text-muted">
+                  <File className="h-4 w-4" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm text-slate-200">{item.file.name}</p>
-                  <p className="text-xs text-slate-600">{formatSize(item.file.size)}</p>
+                  <p className="truncate text-xs font-semibold text-text-primary">{item.file.name}</p>
+                  <p className="text-[10px] text-text-muted">{formatSize(item.file.size)}</p>
                   {item.status === 'uploading' && (
-                    <div className="mt-1.5 h-1 w-full rounded-full bg-white/10">
-                      <div className="progress-shimmer h-full rounded-full" style={{ width: `${item.progress}%` }} />
+                    <div className="mt-1.5 h-1 w-full rounded-full bg-surface-3 overflow-hidden">
+                      <div
+                        className="progress-shimmer h-full rounded-full transition-all duration-300"
+                        style={{ width: `${item.progress}%` }}
+                      />
                     </div>
                   )}
                 </div>
                 <div className="shrink-0">
                   {item.status === 'pending' && (
-                    <button onClick={() => removeFile(item.id)} className="text-slate-600 hover:text-slate-400 transition-colors">
+                    <button
+                      onClick={() => removeFile(item.id)}
+                      className="text-text-muted hover:text-red-500 transition-colors p-1 rounded-md cursor-pointer"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   )}
-                  {item.status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
-                  {item.status === 'done' && <CheckCircle className="h-4 w-4 text-emerald-400" />}
-                  {item.status === 'error' && <AlertCircle className="h-4 w-4 text-red-400" />}
+                  {item.status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+                  {item.status === 'done' && <CheckCircle className="h-4 w-4 text-emerald-500" />}
+                  {item.status === 'error' && <AlertCircle className="h-4 w-4 text-red-500" />}
                 </div>
               </div>
             ))}
@@ -155,19 +175,23 @@ export default function UploadModal({ isOpen, onClose, onUploadComplete, current
         <div className="flex gap-3">
           <button
             onClick={handleClose}
-            className="flex-1 rounded-xl border border-white/10 py-2.5 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+            className="flex-1 btn-secondary rounded-xl py-2.5 text-xs font-semibold cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={uploadAll}
             disabled={files.length === 0 || uploading}
-            className="flex-1 btn-primary rounded-xl py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 btn-primary rounded-xl py-2.5 text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {uploading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Uploading...</>
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Uploading...
+              </>
             ) : (
-              <><Upload className="h-4 w-4" /> Upload {files.length > 0 ? `(${files.length})` : ''}</>
+              <>
+                <Upload className="h-4 w-4" /> Upload {files.length > 0 ? `(${files.length})` : ''}
+              </>
             )}
           </button>
         </div>

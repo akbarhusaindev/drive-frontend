@@ -14,11 +14,13 @@ import { Toaster } from 'react-hot-toast';
 import { fileService } from '../services/fileService';
 import { folderService } from '../services/folderService';
 import { searchService } from '../services/searchService';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   // Folder navigation
   const [currentFolder, setCurrentFolder] = useState(null); // null = root
@@ -42,7 +44,7 @@ export default function Dashboard() {
 
   // Debounce search query
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(searchQuery), 400);
+    const t = setTimeout(() => setDebouncedQuery(searchQuery), 350);
     return () => clearTimeout(t);
   }, [searchQuery]);
 
@@ -161,15 +163,18 @@ export default function Dashboard() {
     : 'My Drive';
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#0f0f23' }}>
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)]">
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: '#1e1e42',
-            color: '#e2e8f0',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '12px',
+            background: resolvedTheme === 'dark' ? '#16172e' : '#ffffff',
+            color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
+            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
+            borderRadius: '14px',
+            boxShadow: '0 10px 30px -5px rgba(0,0,0,0.2)',
+            fontSize: '13px',
+            fontWeight: 500,
           },
         }}
       />
@@ -186,11 +191,13 @@ export default function Dashboard() {
         />
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {/* Page title */}
-          <div className="mb-2">
-            <h1 className="text-2xl font-bold text-white">{pageTitle}</h1>
+          {/* Page header */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl font-bold tracking-tight text-text-primary">{pageTitle}</h1>
+            </div>
             {!debouncedQuery && !currentFolder && (
-              <p className="text-sm text-slate-500 mt-1">All your files, organized.</p>
+              <p className="text-xs text-text-muted mt-1">Manage, organize, and share all your cloud files safely.</p>
             )}
           </div>
 
@@ -199,16 +206,20 @@ export default function Dashboard() {
             <Breadcrumbs path={path} onNavigate={handleBreadcrumbNavigate} />
           )}
 
-          {/* Content */}
+          {/* Content view */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-              <p className="text-sm text-slate-500">Loading files...</p>
+            <div className="flex flex-col items-center justify-center py-28 gap-3 animate-fadeInUp">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+              <p className="text-xs font-semibold text-text-muted">Loading your files...</p>
             </div>
           ) : items.length === 0 ? (
             <EmptyState
               type={debouncedQuery ? 'search' : 'drive'}
               searchQuery={debouncedQuery}
+              onUploadClick={() => setIsUploadOpen(true)}
+              onCreateFolderClick={() => setIsCreateFolderOpen(true)}
             />
           ) : (
             <FileGrid

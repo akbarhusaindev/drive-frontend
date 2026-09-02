@@ -50,45 +50,52 @@ export default function MoveModal({ isOpen, onClose, item, onMoved }) {
   if (!isOpen || !item) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-backdrop">
-      <div className="glass w-full max-w-md rounded-2xl p-6 animate-fadeInUp border border-white/10 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fadeInUp">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-surface/95 p-6 shadow-2xl backdrop-blur-2xl">
         {/* Header */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600/20">
-              <ArrowRight className="h-5 w-5 text-indigo-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-500">
+              <ArrowRight className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Move file</h2>
-              <p className="text-xs text-slate-500 truncate max-w-xs">{item.originalName || item.name}</p>
+              <h2 className="text-base font-bold text-text-primary">Move Item</h2>
+              <p className="text-xs text-text-muted truncate max-w-xs">{item.originalName || item.name}</p>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="rounded-xl p-1.5 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
+            aria-label="Close modal"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Folder selection list */}
-        <div className="max-h-60 overflow-y-auto mb-6 space-y-1 pr-1">
+        <div className="max-h-60 overflow-y-auto mb-6 space-y-1.5 pr-1">
           {fetching ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6.5 w-6.5 animate-spin text-indigo-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : (
             <>
               {/* Root option */}
               <button
+                type="button"
                 onClick={() => setSelectedFolderId('root')}
-                className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all text-left ${
+                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-xs transition-all text-left cursor-pointer ${
                   selectedFolderId === 'root'
-                    ? 'bg-indigo-600/20 border border-indigo-500/40 text-indigo-300'
-                    : 'glass border border-white/5 text-slate-300 hover:bg-white/5 hover:text-white'
+                    ? 'bg-primary/15 border border-primary/40 text-primary font-semibold'
+                    : 'border border-border bg-surface-2/60 text-text-secondary hover:bg-surface-3 hover:text-text-primary'
                 }`}
               >
-                <Folder className="h-4.5 w-4.5 text-indigo-400 fill-indigo-400/20" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-500">
+                  <Folder className="h-4 w-4" />
+                </div>
                 <div>
-                  <p className="font-semibold">My Drive (Root)</p>
-                  <p className="text-xs text-slate-500">Move to the main directory</p>
+                  <p className="font-semibold text-text-primary">My Drive (Root Directory)</p>
+                  <p className="text-[11px] text-text-muted">Move to the top level folder</p>
                 </div>
               </button>
 
@@ -96,23 +103,28 @@ export default function MoveModal({ isOpen, onClose, item, onMoved }) {
               {folders.map((f) => (
                 <button
                   key={f.id}
+                  type="button"
                   onClick={() => setSelectedFolderId(f.id)}
-                  className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all text-left ${
+                  className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-xs transition-all text-left cursor-pointer ${
                     selectedFolderId === f.id
-                      ? 'bg-indigo-600/20 border border-indigo-500/40 text-indigo-300'
-                      : 'glass border border-white/5 text-slate-300 hover:bg-white/5 hover:text-white'
+                      ? 'bg-primary/15 border border-primary/40 text-primary font-semibold'
+                      : 'border border-border bg-surface-2/60 text-text-secondary hover:bg-surface-3 hover:text-text-primary'
                   }`}
                 >
-                  <Folder className="h-4.5 w-4.5 text-purple-400 fill-purple-400/20" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-500/15 text-purple-500">
+                    <Folder className="h-4 w-4" />
+                  </div>
                   <div>
-                    <p className="font-semibold">{f.name}</p>
-                    <p className="text-xs text-slate-500">Folder</p>
+                    <p className="font-semibold text-text-primary">{f.name}</p>
+                    <p className="text-[11px] text-text-muted">Folder</p>
                   </div>
                 </button>
               ))}
 
               {folders.length === 0 && (
-                <p className="text-center text-xs text-slate-500 py-6">No folders available. You can move files to the root directory.</p>
+                <p className="text-center text-xs text-text-muted py-6">
+                  No subfolders found. You can move files to the root directory.
+                </p>
               )}
             </>
           )}
@@ -123,16 +135,16 @@ export default function MoveModal({ isOpen, onClose, item, onMoved }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-white/10 py-2.5 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+            className="flex-1 btn-secondary rounded-xl py-2.5 text-xs font-semibold cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleMove}
             disabled={loading || fetching}
-            className="flex-1 btn-primary rounded-xl py-2.5 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 btn-primary rounded-xl py-2.5 text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Move here'}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Move Here'}
           </button>
         </div>
       </div>

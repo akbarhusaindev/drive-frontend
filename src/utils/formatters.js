@@ -30,30 +30,101 @@ export function formatDate(dateStr) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-/** Get icon component + color for a file based on MIME type */
+/** Get icon component + vibrant color for a file based on MIME type */
 export function getFileIconInfo(item) {
   if (item.type === 'folder' || !item.mimeType) {
-    return { Icon: Folder, color: '#818cf8', bg: 'rgba(129,140,248,0.15)' };
+    return {
+      Icon: Folder,
+      color: '#6366f1',
+      bg: 'rgba(99, 102, 241, 0.12)',
+      border: 'rgba(99, 102, 241, 0.25)',
+      category: 'folder',
+    };
   }
 
-  const m = item.mimeType;
+  const m = item.mimeType.toLowerCase();
 
-  if (m.startsWith('image/'))
-    return { Icon: Image, color: '#34d399', bg: 'rgba(52,211,153,0.12)' };
-  if (m.startsWith('video/'))
-    return { Icon: Film, color: '#f472b6', bg: 'rgba(244,114,182,0.12)' };
-  if (m.startsWith('audio/'))
-    return { Icon: Music, color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' };
-  if (m === 'application/pdf')
-    return { Icon: FileText, color: '#fb923c', bg: 'rgba(251,146,60,0.12)' };
-  if (m.includes('spreadsheet') || m.includes('excel') || m === 'text/csv')
-    return { Icon: FileSpreadsheet, color: '#4ade80', bg: 'rgba(74,222,128,0.12)' };
-  if (m.includes('zip') || m.includes('tar') || m.includes('gz') || m.includes('rar'))
-    return { Icon: Archive, color: '#facc15', bg: 'rgba(250,204,21,0.12)' };
-  if (m.includes('javascript') || m.includes('typescript') || m.includes('html') || m.includes('css') || m.includes('json'))
-    return { Icon: FileCode, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' };
+  if (m.startsWith('image/')) {
+    return {
+      Icon: Image,
+      color: '#10b981',
+      bg: 'rgba(16, 185, 129, 0.12)',
+      border: 'rgba(16, 185, 129, 0.25)',
+      category: 'image',
+    };
+  }
+  if (m.startsWith('video/')) {
+    return {
+      Icon: Film,
+      color: '#ec4899',
+      bg: 'rgba(236, 72, 153, 0.12)',
+      border: 'rgba(236, 72, 153, 0.25)',
+      category: 'media',
+    };
+  }
+  if (m.startsWith('audio/')) {
+    return {
+      Icon: Music,
+      color: '#8b5cf6',
+      bg: 'rgba(139, 92, 246, 0.12)',
+      border: 'rgba(139, 92, 246, 0.25)',
+      category: 'media',
+    };
+  }
+  if (m === 'application/pdf') {
+    return {
+      Icon: FileText,
+      color: '#f97316',
+      bg: 'rgba(249, 115, 22, 0.12)',
+      border: 'rgba(249, 115, 22, 0.25)',
+      category: 'document',
+    };
+  }
+  if (m.includes('spreadsheet') || m.includes('excel') || m === 'text/csv') {
+    return {
+      Icon: FileSpreadsheet,
+      color: '#22c55e',
+      bg: 'rgba(34, 197, 94, 0.12)',
+      border: 'rgba(34, 197, 94, 0.25)',
+      category: 'document',
+    };
+  }
+  if (m.includes('zip') || m.includes('tar') || m.includes('gz') || m.includes('rar') || m.includes('7z')) {
+    return {
+      Icon: Archive,
+      color: '#eab308',
+      bg: 'rgba(234, 179, 8, 0.12)',
+      border: 'rgba(234, 179, 8, 0.25)',
+      category: 'archive',
+    };
+  }
+  if (
+    m.includes('javascript') ||
+    m.includes('typescript') ||
+    m.includes('html') ||
+    m.includes('css') ||
+    m.includes('json') ||
+    m.includes('xml') ||
+    m.includes('python') ||
+    m.includes('java') ||
+    m.includes('code')
+  ) {
+    return {
+      Icon: FileCode,
+      color: '#06b6d4',
+      bg: 'rgba(6, 182, 212, 0.12)',
+      border: 'rgba(6, 182, 212, 0.25)',
+      category: 'code',
+    };
+  }
 
-  return { Icon: File, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' };
+  return {
+    Icon: File,
+    color: '#64748b',
+    bg: 'rgba(100, 116, 139, 0.12)',
+    border: 'rgba(100, 116, 139, 0.22)',
+    category: 'other',
+  };
 }
 
 /** Get display name for MIME type */
@@ -65,12 +136,16 @@ export function getMimeLabel(mimeType) {
     'image/jpeg': 'JPEG Image',
     'image/gif': 'GIF Image',
     'image/webp': 'WebP Image',
+    'image/svg+xml': 'SVG Vector',
     'video/mp4': 'MP4 Video',
+    'video/webm': 'WebM Video',
+    'video/quicktime': 'QuickTime Video',
     'audio/mpeg': 'MP3 Audio',
+    'audio/wav': 'WAV Audio',
     'text/plain': 'Text File',
-    'text/csv': 'CSV',
+    'text/csv': 'CSV Spreadsheet',
     'application/zip': 'ZIP Archive',
-    'application/json': 'JSON',
+    'application/json': 'JSON Document',
   };
   return map[mimeType] || mimeType.split('/')[1]?.toUpperCase() || 'File';
 }
