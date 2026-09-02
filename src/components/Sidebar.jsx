@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Cloud, HardDrive, Trash2, Users, X, LogOut, ChevronRight, Database, Sparkles
+  Cloud, HardDrive, Trash2, Users, X, LogOut, ChevronRight
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import ThemeToggle from './ThemeToggle';
@@ -89,30 +89,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             );
           })}
         </nav>
-
-        {/* Storage Widget */}
-        <div className="px-3 pb-3">
-          <div className="rounded-2xl border border-border bg-surface-2/70 p-3.5 backdrop-blur-md">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold text-text-primary">Storage</span>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
-                <Sparkles className="h-2.5 w-2.5" /> Free Tier
-              </span>
-            </div>
-            
-            <div className="storage-bar h-1.5 w-full mb-2">
-              <div className="storage-fill h-full" style={{ width: '28%' }} />
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-text-muted">
-              <span>2.8 GB used</span>
-              <span>10 GB total</span>
-            </div>
-          </div>
-        </div>
 
         {/* Footer actions */}
         <div className="border-t border-border p-3 flex items-center justify-between gap-2">
