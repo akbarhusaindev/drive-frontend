@@ -1,6 +1,6 @@
 import {
   FileText, Image, Film, Music, Archive, FileCode, FileSpreadsheet,
-  File, Folder,
+  File, Folder, Presentation, Database
 } from 'lucide-react';
 
 /** Format bytes to human-readable size */
@@ -32,72 +32,126 @@ export function formatDate(dateStr) {
 
 /** Get icon component + vibrant color for a file based on MIME type */
 export function getFileIconInfo(item) {
-  if (item.type === 'folder' || !item.mimeType) {
+  if (item.type === 'folder' || (!item.mimeType && !item.originalName?.includes('.'))) {
     return {
       Icon: Folder,
-      color: '#6366f1',
-      bg: 'rgba(99, 102, 241, 0.12)',
-      border: 'rgba(99, 102, 241, 0.25)',
+      color: '#818cf8',
+      bg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)',
+      border: 'rgba(99, 102, 241, 0.35)',
+      badge: 'Folder',
       category: 'folder',
+      previewGradient: 'from-indigo-600/20 via-purple-600/15 to-transparent',
     };
   }
 
-  const m = item.mimeType.toLowerCase();
+  const m = (item.mimeType || '').toLowerCase();
+  const ext = (item.originalName || item.name || '').split('.').pop()?.toLowerCase();
 
-  if (m.startsWith('image/')) {
+  // Images
+  if (m.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes(ext)) {
     return {
       Icon: Image,
-      color: '#10b981',
-      bg: 'rgba(16, 185, 129, 0.12)',
-      border: 'rgba(16, 185, 129, 0.25)',
+      color: '#34d399',
+      bg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%)',
+      border: 'rgba(16, 185, 129, 0.35)',
+      badge: 'Image',
       category: 'image',
+      previewGradient: 'from-emerald-500/20 via-teal-500/10 to-transparent',
     };
   }
-  if (m.startsWith('video/')) {
+
+  // Videos
+  if (m.startsWith('video/') || ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv'].includes(ext)) {
     return {
       Icon: Film,
-      color: '#ec4899',
-      bg: 'rgba(236, 72, 153, 0.12)',
-      border: 'rgba(236, 72, 153, 0.25)',
+      color: '#f472b6',
+      bg: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.1) 100%)',
+      border: 'rgba(236, 72, 153, 0.35)',
+      badge: 'Video',
       category: 'media',
+      previewGradient: 'from-pink-500/20 via-rose-500/10 to-transparent',
     };
   }
-  if (m.startsWith('audio/')) {
+
+  // Audio
+  if (m.startsWith('audio/') || ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'].includes(ext)) {
     return {
       Icon: Music,
-      color: '#8b5cf6',
-      bg: 'rgba(139, 92, 246, 0.12)',
-      border: 'rgba(139, 92, 246, 0.25)',
+      color: '#a78bfa',
+      bg: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%)',
+      border: 'rgba(139, 92, 246, 0.35)',
+      badge: 'Audio',
       category: 'media',
+      previewGradient: 'from-purple-500/20 via-violet-500/10 to-transparent',
     };
   }
-  if (m === 'application/pdf') {
+
+  // PDF
+  if (m === 'application/pdf' || ext === 'pdf') {
     return {
       Icon: FileText,
-      color: '#f97316',
-      bg: 'rgba(249, 115, 22, 0.12)',
-      border: 'rgba(249, 115, 22, 0.25)',
+      color: '#fb923c',
+      bg: 'linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%)',
+      border: 'rgba(249, 115, 22, 0.35)',
+      badge: 'PDF',
       category: 'document',
+      previewGradient: 'from-orange-500/20 via-amber-500/10 to-transparent',
     };
   }
-  if (m.includes('spreadsheet') || m.includes('excel') || m === 'text/csv') {
+
+  // Spreadsheet
+  if (
+    m.includes('spreadsheet') ||
+    m.includes('excel') ||
+    ['csv', 'xlsx', 'xls', 'numbers', 'tsv'].includes(ext)
+  ) {
     return {
       Icon: FileSpreadsheet,
-      color: '#22c55e',
-      bg: 'rgba(34, 197, 94, 0.12)',
-      border: 'rgba(34, 197, 94, 0.25)',
+      color: '#4ade80',
+      bg: 'linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.1) 100%)',
+      border: 'rgba(34, 197, 94, 0.35)',
+      badge: 'Spreadsheet',
       category: 'document',
+      previewGradient: 'from-green-500/20 via-emerald-500/10 to-transparent',
     };
   }
-  if (m.includes('zip') || m.includes('tar') || m.includes('gz') || m.includes('rar') || m.includes('7z')) {
+
+  // Presentation / Slides
+  if (
+    m.includes('presentation') ||
+    m.includes('powerpoint') ||
+    ['ppt', 'pptx', 'key'].includes(ext)
+  ) {
+    return {
+      Icon: Presentation,
+      color: '#f87171',
+      bg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%)',
+      border: 'rgba(239, 68, 68, 0.35)',
+      badge: 'Slides',
+      category: 'document',
+      previewGradient: 'from-red-500/20 via-orange-500/10 to-transparent',
+    };
+  }
+
+  // Archives
+  if (
+    m.includes('zip') ||
+    m.includes('tar') ||
+    m.includes('compressed') ||
+    ['zip', 'tar', 'gz', 'rar', '7z', 'bz2'].includes(ext)
+  ) {
     return {
       Icon: Archive,
-      color: '#eab308',
-      bg: 'rgba(234, 179, 8, 0.12)',
-      border: 'rgba(234, 179, 8, 0.25)',
+      color: '#facc15',
+      bg: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(202, 138, 4, 0.1) 100%)',
+      border: 'rgba(234, 179, 8, 0.35)',
+      badge: 'Archive',
       category: 'archive',
+      previewGradient: 'from-yellow-500/20 via-amber-500/10 to-transparent',
     };
   }
+
+  // Code / Web files
   if (
     m.includes('javascript') ||
     m.includes('typescript') ||
@@ -107,23 +161,29 @@ export function getFileIconInfo(item) {
     m.includes('xml') ||
     m.includes('python') ||
     m.includes('java') ||
-    m.includes('code')
+    m.includes('code') ||
+    ['js', 'jsx', 'ts', 'tsx', 'html', 'css', 'json', 'py', 'java', 'cpp', 'c', 'rs', 'go', 'php', 'sql', 'sh', 'md'].includes(ext)
   ) {
     return {
       Icon: FileCode,
-      color: '#06b6d4',
-      bg: 'rgba(6, 182, 212, 0.12)',
-      border: 'rgba(6, 182, 212, 0.25)',
+      color: '#22d3ee',
+      bg: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(8, 145, 178, 0.1) 100%)',
+      border: 'rgba(6, 182, 212, 0.35)',
+      badge: (ext || 'Code').toUpperCase(),
       category: 'code',
+      previewGradient: 'from-cyan-500/20 via-blue-500/10 to-transparent',
     };
   }
 
+  // Generic document / file
   return {
     Icon: File,
-    color: '#64748b',
-    bg: 'rgba(100, 116, 139, 0.12)',
-    border: 'rgba(100, 116, 139, 0.22)',
+    color: '#94a3b8',
+    bg: 'linear-gradient(135deg, rgba(148, 163, 184, 0.18) 0%, rgba(100, 116, 139, 0.1) 100%)',
+    border: 'rgba(148, 163, 184, 0.28)',
+    badge: (ext || 'File').toUpperCase(),
     category: 'other',
+    previewGradient: 'from-slate-500/15 via-slate-600/5 to-transparent',
   };
 }
 
@@ -131,7 +191,7 @@ export function getFileIconInfo(item) {
 export function getMimeLabel(mimeType) {
   if (!mimeType) return 'Folder';
   const map = {
-    'application/pdf': 'PDF',
+    'application/pdf': 'PDF Document',
     'image/png': 'PNG Image',
     'image/jpeg': 'JPEG Image',
     'image/gif': 'GIF Image',
@@ -142,7 +202,7 @@ export function getMimeLabel(mimeType) {
     'video/quicktime': 'QuickTime Video',
     'audio/mpeg': 'MP3 Audio',
     'audio/wav': 'WAV Audio',
-    'text/plain': 'Text File',
+    'text/plain': 'Text Document',
     'text/csv': 'CSV Spreadsheet',
     'application/zip': 'ZIP Archive',
     'application/json': 'JSON Document',

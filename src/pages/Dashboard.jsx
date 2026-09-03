@@ -16,7 +16,7 @@ import { folderService } from '../services/folderService';
 import { searchService } from '../services/searchService';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, HardDrive, Folder, FileText, Sparkles, Upload } from 'lucide-react';
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,7 +69,6 @@ export default function Dashboard() {
         // ── BROWSE MODE ──
         const folderId = currentFolder?.id ?? null;
 
-        // Fetch folders and files in parallel
         const [foldersRes, filesRes] = await Promise.all([
           folderId
             ? folderService.getChildFolders(folderId)
@@ -105,7 +104,7 @@ export default function Dashboard() {
     fetchItems();
   }, [fetchItems]);
 
-  // ── Navigation handlers ──
+  // Navigation handlers
   const handleFolderClick = (folder) => {
     if (debouncedQuery) {
       setSearchQuery('');
@@ -157,10 +156,13 @@ export default function Dashboard() {
   };
 
   const pageTitle = debouncedQuery
-    ? `Results for "${debouncedQuery}"`
+    ? `Search results for "${debouncedQuery}"`
     : currentFolder
     ? currentFolder.name
     : 'My Drive';
+
+  const folderCount = items.filter((i) => i.type === 'folder').length;
+  const fileCount = items.filter((i) => i.type !== 'folder').length;
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)]">
@@ -168,18 +170,23 @@ export default function Dashboard() {
         position="top-right"
         toastOptions={{
           style: {
-            background: resolvedTheme === 'dark' ? '#16172e' : '#ffffff',
+            background: resolvedTheme === 'dark' ? '#14162d' : '#ffffff',
             color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
-            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-            borderRadius: '14px',
-            boxShadow: '0 10px 30px -5px rgba(0,0,0,0.2)',
+            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 16px 36px -8px rgba(0,0,0,0.25)',
             fontSize: '13px',
-            fontWeight: 500,
+            fontWeight: 600,
           },
         }}
       />
 
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+        onUploadClick={() => setIsUploadOpen(true)}
+        onCreateFolderClick={() => setIsCreateFolderOpen(true)}
+      />
 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <Topbar
@@ -190,29 +197,51 @@ export default function Dashboard() {
           onCreateFolderClick={() => setIsCreateFolderOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {/* Page header */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary">{pageTitle}</h1>
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-grid-pattern">
+          {/* Header & Quick stats */}
+          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-extrabold font-heading tracking-tight text-text-primary">
+                  {pageTitle}
+                </h1>
+              </div>
+              {!debouncedQuery && !currentFolder && (
+                <p className="text-xs text-text-muted mt-1 font-medium">
+                  High-speed storage, secure encryption, and seamless team collaboration.
+                </p>
+              )}
             </div>
-            {!debouncedQuery && !currentFolder && (
-              <p className="text-xs text-text-muted mt-1">Manage, organize, and share all your cloud files safely.</p>
+
+            {/* Quick Metrics Bar */}
+            {!debouncedQuery && !loading && items.length > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface/80 px-3.5 py-1.5 backdrop-blur-md shadow-xs">
+                  <Folder className="h-3.5 w-3.5 text-purple-500" />
+                  <span className="text-xs font-bold text-text-primary">{folderCount}</span>
+                  <span className="text-[10px] text-text-muted">Folders</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface/80 px-3.5 py-1.5 backdrop-blur-md shadow-xs">
+                  <FileText className="h-3.5 w-3.5 text-indigo-500" />
+                  <span className="text-xs font-bold text-text-primary">{fileCount}</span>
+                  <span className="text-[10px] text-text-muted">Files</span>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Breadcrumb navigation (only in browse mode) */}
+          {/* Breadcrumb navigation */}
           {!debouncedQuery && (
             <Breadcrumbs path={path} onNavigate={handleBreadcrumbNavigate} />
           )}
 
           {/* Content view */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-28 gap-3 animate-fadeInUp">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-32 gap-4 animate-fadeInUp">
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-500/10 text-indigo-500 shadow-md">
+                <Loader2 className="h-7 w-7 animate-spin text-primary" />
               </div>
-              <p className="text-xs font-semibold text-text-muted">Loading your files...</p>
+              <p className="text-xs font-bold text-text-muted">Accessing your cloud storage...</p>
             </div>
           ) : items.length === 0 ? (
             <EmptyState

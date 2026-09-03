@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { shareService } from '../services/shareService';
 import { getFileIconInfo, formatSize, formatDate } from '../utils/formatters';
 import { useTheme } from '../context/ThemeContext';
-import { Loader2, Users, Download, Eye } from 'lucide-react';
+import { Loader2, Users, Download, Eye, Shield } from 'lucide-react';
 import { fileService } from '../services/fileService';
 import toast from 'react-hot-toast';
 
@@ -69,13 +69,13 @@ export default function Shared() {
         position="top-right"
         toastOptions={{
           style: {
-            background: resolvedTheme === 'dark' ? '#16172e' : '#ffffff',
+            background: resolvedTheme === 'dark' ? '#14162d' : '#ffffff',
             color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
-            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-            borderRadius: '14px',
-            boxShadow: '0 10px 30px -5px rgba(0,0,0,0.2)',
+            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 16px 36px -8px rgba(0,0,0,0.25)',
             fontSize: '13px',
-            fontWeight: 500,
+            fontWeight: 600,
           },
         }}
       />
@@ -90,31 +90,35 @@ export default function Shared() {
           onCreateFolderClick={() => {}}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-grid-pattern">
           {/* Header */}
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-500 shadow-sm">
-              <Users className="h-5 w-5" />
+          <div className="mb-8 flex items-center gap-3.5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-500 shadow-md">
+              <Users className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary">Shared with me</h1>
-              <p className="text-xs text-text-muted mt-0.5">Files and documents other users have collaborated on with you</p>
+              <h1 className="text-2xl md:text-3xl font-extrabold font-heading tracking-tight text-text-primary">
+                Shared with me
+              </h1>
+              <p className="text-xs text-text-muted mt-0.5 font-medium">
+                Files and documents shared with your account for collaboration
+              </p>
             </div>
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-28 gap-3 animate-fadeInUp">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-32 gap-4 animate-fadeInUp">
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-500/10 text-indigo-500 shadow-md">
+                <Loader2 className="h-7 w-7 animate-spin text-primary" />
               </div>
-              <p className="text-xs font-semibold text-text-muted">Loading shared files...</p>
+              <p className="text-xs font-bold text-text-muted">Loading shared documents...</p>
             </div>
           ) : shares.length === 0 ? (
             <EmptyState type="shared" />
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {/* Table header */}
-              <div className="grid grid-cols-12 gap-4 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <div className="grid grid-cols-12 gap-4 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
                 <div className="col-span-4">Name</div>
                 <div className="col-span-2 hidden sm:block">Size</div>
                 <div className="col-span-2 hidden sm:block">Permission</div>
@@ -131,17 +135,17 @@ export default function Shared() {
                 return (
                   <div
                     key={share.id}
-                    className="glass glass-hover grid grid-cols-12 gap-4 items-center rounded-2xl px-4 py-3 animate-fadeInUp"
+                    className="glass grid grid-cols-12 gap-4 items-center rounded-2xl px-5 py-3.5 border border-border/70 hover:border-indigo-500/30 transition-all animate-fadeInUp"
                   >
                     {/* File name + icon */}
-                    <div className="col-span-4 flex items-center gap-3 min-w-0">
+                    <div className="col-span-4 flex items-center gap-3.5 min-w-0">
                       <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs"
                         style={{ background: bg, border: `1px solid ${border}` }}
                       >
-                        <Icon className="h-4.5 w-4.5" style={{ color }} />
+                        <Icon className="h-5 w-5" style={{ color }} />
                       </div>
-                      <span className="truncate text-sm font-semibold text-text-primary" title={file.originalName}>
+                      <span className="truncate text-xs font-bold text-text-primary" title={file.originalName}>
                         {file.originalName}
                       </span>
                     </div>
@@ -154,9 +158,9 @@ export default function Shared() {
                     {/* Permission badge */}
                     <div className="col-span-2 hidden sm:block">
                       <span
-                        className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold ${
+                        className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold ${
                           canEdit
-                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                            ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
                             : 'bg-primary/15 text-primary border border-primary/30'
                         }`}
                       >
@@ -165,7 +169,7 @@ export default function Shared() {
                     </div>
 
                     {/* Shared by */}
-                    <div className="col-span-2 hidden md:block text-xs text-text-muted truncate">
+                    <div className="col-span-2 hidden md:block text-xs text-text-muted font-medium truncate">
                       {share.sharedBy?.email || '—'}
                     </div>
 

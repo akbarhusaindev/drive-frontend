@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react';
 import {
   LayoutGrid, List, MoreVertical, Share2, Trash2, Edit2, Link2, Move,
   ArrowUpDown, ArrowUp, ArrowDown, Folder, FileText, Image, Film, Archive,
-  FileCode, Layers
+  FileCode, Layers, Download, Eye, Sparkles
 } from 'lucide-react';
 import { getFileIconInfo, formatSize, formatDate, getMimeLabel } from '../utils/formatters';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: Layers },
+  { id: 'all', label: 'All Files', icon: Layers },
   { id: 'folder', label: 'Folders', icon: Folder },
   { id: 'document', label: 'Documents', icon: FileText },
   { id: 'image', label: 'Images', icon: Image },
@@ -61,7 +61,6 @@ export default function FileGrid({
   const sortedItems = useMemo(() => {
     const list = [...filteredItems];
     return list.sort((a, b) => {
-      // Keep folders on top in normal view unless sorting by size/date explicitly
       if (sortBy === 'name') {
         if (a.type === 'folder' && b.type !== 'folder') return -1;
         if (a.type !== 'folder' && b.type === 'folder') return 1;
@@ -94,25 +93,25 @@ export default function FileGrid({
   };
 
   if (!items || items.length === 0) {
-    return null; // EmptyState rendered by parent
+    return null;
   }
 
   return (
-    <div onClick={closeMenu} className="space-y-4">
-      {/* Category Pills & Controls Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Filter categories */}
+    <div onClick={closeMenu} className="space-y-5">
+      {/* Filter Chips & Toolbar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Category Pills */}
         {!isTrashView && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {CATEGORIES.map(({ id, label, icon: Icon }) => {
               const isActive = activeCategory === id;
               return (
                 <button
                   key={id}
                   onClick={() => setActiveCategory(id)}
-                  className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all shrink-0 cursor-pointer ${
+                  className={`flex items-center gap-2 rounded-2xl px-3.5 py-2 text-xs font-semibold transition-all shrink-0 cursor-pointer ${
                     isActive
-                      ? 'bg-primary text-white shadow-xs font-semibold'
+                      ? 'btn-primary shadow-sm'
                       : 'border border-border bg-surface-2/60 text-text-secondary hover:bg-surface-3 hover:text-text-primary'
                   }`}
                 >
@@ -124,14 +123,14 @@ export default function FileGrid({
           </div>
         )}
 
-        {/* View mode & Sorting */}
-        <div className="flex items-center justify-between sm:justify-end gap-2 ml-auto">
-          {/* Sorting dropdown button */}
-          <div className="flex items-center gap-1 border border-border bg-surface-2/60 rounded-xl p-1">
+        {/* View Controls & Sort Options */}
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 ml-auto">
+          {/* Sorting buttons */}
+          <div className="flex items-center gap-1 border border-border bg-surface-2/60 rounded-2xl p-1 shadow-xs">
             <button
               onClick={() => toggleSort('name')}
-              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                sortBy === 'name' ? 'bg-surface text-primary font-semibold shadow-xs' : 'text-text-muted hover:text-text-primary'
+              className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                sortBy === 'name' ? 'bg-surface text-primary shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
               title="Sort by Name"
             >
@@ -140,8 +139,8 @@ export default function FileGrid({
             </button>
             <button
               onClick={() => toggleSort('date')}
-              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                sortBy === 'date' ? 'bg-surface text-primary font-semibold shadow-xs' : 'text-text-muted hover:text-text-primary'
+              className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                sortBy === 'date' ? 'bg-surface text-primary shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
               title="Sort by Date"
             >
@@ -150,8 +149,8 @@ export default function FileGrid({
             </button>
             <button
               onClick={() => toggleSort('size')}
-              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                sortBy === 'size' ? 'bg-surface text-primary font-semibold shadow-xs' : 'text-text-muted hover:text-text-primary'
+              className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                sortBy === 'size' ? 'bg-surface text-primary shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
               title="Sort by Size"
             >
@@ -160,11 +159,11 @@ export default function FileGrid({
             </button>
           </div>
 
-          {/* View toggle */}
-          <div className="flex items-center gap-1 border border-border bg-surface-2/60 rounded-xl p-1">
+          {/* View toggle (Grid / List) */}
+          <div className="flex items-center gap-1 border border-border bg-surface-2/60 rounded-2xl p-1 shadow-xs">
             <button
               onClick={() => setView('grid')}
-              className={`rounded-lg p-1.5 transition-colors cursor-pointer ${
+              className={`rounded-xl p-1.5 transition-all cursor-pointer ${
                 view === 'grid' ? 'bg-surface text-primary shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
               title="Grid View"
@@ -174,7 +173,7 @@ export default function FileGrid({
             </button>
             <button
               onClick={() => setView('list')}
-              className={`rounded-lg p-1.5 transition-colors cursor-pointer ${
+              className={`rounded-xl p-1.5 transition-all cursor-pointer ${
                 view === 'list' ? 'bg-surface text-primary shadow-xs' : 'text-text-muted hover:text-text-primary'
               }`}
               title="List View"
@@ -187,13 +186,21 @@ export default function FileGrid({
       </div>
 
       {/* Item count status */}
-      <div className="text-xs font-medium text-text-muted px-0.5">
-        Showing {sortedItems.length} item{sortedItems.length !== 1 ? 's' : ''}
+      <div className="flex items-center justify-between text-xs font-semibold text-text-muted px-1">
+        <span>Showing {sortedItems.length} item{sortedItems.length !== 1 ? 's' : ''}</span>
+        {activeCategory !== 'all' && (
+          <button
+            onClick={() => setActiveCategory('all')}
+            className="text-primary hover:underline cursor-pointer"
+          >
+            Clear filter
+          </button>
+        )}
       </div>
 
       {/* Grid View */}
       {view === 'grid' ? (
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {sortedItems.map((item) => (
             <FileCardGrid
               key={item.id}
@@ -213,12 +220,12 @@ export default function FileGrid({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           {/* List header */}
-          <div className="grid grid-cols-12 gap-4 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+          <div className="grid grid-cols-12 gap-4 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
             <div className="col-span-6">Name</div>
-            <div className="col-span-2 hidden sm:block">Size</div>
-            <div className="col-span-3 hidden md:block">Modified</div>
+            <div className="col-span-2 hidden sm:block">Type / Size</div>
+            <div className="col-span-3 hidden md:block">Last Modified</div>
             <div className="col-span-1 text-right" />
           </div>
           {sortedItems.map((item) => (
@@ -259,29 +266,40 @@ function FileCardGrid({
   onRestoreClick,
   onDeleteClick,
 }) {
-  const { Icon, color, bg, border } = getFileIconInfo(item);
+  const { Icon, color, bg, border, badge, previewGradient } = getFileIconInfo(item);
   const isFolder = item.type === 'folder';
 
   return (
     <div
-      className={`file-card group glass glass-hover relative rounded-2xl p-4 cursor-pointer animate-fadeInUp flex flex-col justify-between ${
+      className={`file-card group glass relative rounded-3xl p-4 cursor-pointer animate-fadeInUp flex flex-col justify-between border border-border/70 hover:border-indigo-500/40 transition-all ${
         isTrashView ? 'opacity-70' : ''
       }`}
       onClick={() => onItemClick(item)}
     >
       <div>
-        {/* Icon & Category Badge */}
-        <div className="flex items-start justify-between mb-3">
+        {/* Top Header / Preview Icon Box */}
+        <div
+          className={`relative mb-3 flex h-24 w-full items-center justify-center rounded-2xl bg-gradient-to-b ${previewGradient} border border-border/40 overflow-hidden group-hover:scale-[1.02] transition-transform duration-300`}
+        >
+          {/* Ambient Glow */}
           <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-105"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
             style={{ background: bg, border: `1px solid ${border}` }}
           >
             <Icon className="h-6 w-6" style={{ color }} />
           </div>
 
-          {/* Quick Actions (visible on hover or when menu is active) */}
+          {/* Badge */}
+          <span
+            className="absolute top-2.5 left-2.5 rounded-md px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider backdrop-blur-md shadow-xs"
+            style={{ background: bg, color, border: `1px solid ${border}` }}
+          >
+            {badge}
+          </span>
+
+          {/* Quick Hover Action Bar */}
           {!isTrashView && (
-            <div className="flex items-center gap-0.5">
+            <div className="absolute top-2.5 right-2.5 flex items-center gap-1">
               {!isFolder && (
                 <button
                   onClick={(e) => {
@@ -289,9 +307,9 @@ function FileCardGrid({
                     onShareClick && onShareClick(item);
                   }}
                   title="Share"
-                  className="rounded-lg p-1.5 text-text-muted hover:bg-surface-3 hover:text-primary opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                  className="rounded-xl p-1.5 bg-surface/90 text-text-muted hover:text-indigo-500 hover:bg-surface border border-border shadow-xs opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                 >
-                  <Share2 className="h-4 w-4" />
+                  <Share2 className="h-3.5 w-3.5" />
                 </button>
               )}
               <button
@@ -299,12 +317,12 @@ function FileCardGrid({
                   e.stopPropagation();
                   setActiveMenu(activeMenu === item.id ? null : item.id);
                 }}
-                className={`rounded-lg p-1.5 text-text-muted hover:bg-surface-3 hover:text-text-primary transition-all cursor-pointer ${
-                  activeMenu === item.id ? 'opacity-100 bg-surface-3 text-text-primary' : 'opacity-0 group-hover:opacity-100'
+                className={`rounded-xl p-1.5 bg-surface/90 text-text-muted hover:text-text-primary hover:bg-surface border border-border shadow-xs transition-all cursor-pointer ${
+                  activeMenu === item.id ? 'opacity-100 bg-surface text-text-primary' : 'opacity-0 group-hover:opacity-100'
                 }`}
                 aria-label="More options"
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
@@ -312,7 +330,7 @@ function FileCardGrid({
 
         {/* Name */}
         <p
-          className="truncate text-sm font-semibold text-text-primary mb-1 tracking-tight"
+          className="truncate text-xs font-bold text-text-primary tracking-tight mb-1"
           title={item.originalName || item.name}
         >
           {item.originalName || item.name}
@@ -320,7 +338,7 @@ function FileCardGrid({
       </div>
 
       {/* Metadata footer */}
-      <div className="flex items-center justify-between text-xs text-text-muted mt-2 pt-2 border-t border-border/50">
+      <div className="flex items-center justify-between text-[11px] font-medium text-text-muted mt-2 pt-2 border-t border-border/40">
         <span>{isFolder ? 'Folder' : formatSize(item.size)}</span>
         <span>{formatDate(item.createdAt || item.updatedAt)}</span>
       </div>
@@ -338,7 +356,7 @@ function FileCardGrid({
         isTrashView={isTrashView}
         onRestoreClick={onRestoreClick}
         onDeleteClick={onDeleteClick}
-        position="top-11 right-2"
+        position="top-12 right-3"
       />
     </div>
   );
@@ -359,26 +377,26 @@ function FileCardList({
   onRestoreClick,
   onDeleteClick,
 }) {
-  const { Icon, color, bg, border } = getFileIconInfo(item);
+  const { Icon, color, bg, border, badge } = getFileIconInfo(item);
   const isFolder = item.type === 'folder';
 
   return (
     <div
-      className={`file-card glass glass-hover relative grid grid-cols-12 gap-4 items-center rounded-xl px-4 py-2.5 cursor-pointer animate-fadeInUp ${
+      className={`file-card glass relative grid grid-cols-12 gap-4 items-center rounded-2xl px-5 py-3.5 cursor-pointer animate-fadeInUp border border-border/60 hover:border-indigo-500/30 ${
         isTrashView ? 'opacity-70' : ''
       }`}
       onClick={() => onItemClick(item)}
     >
-      <div className="col-span-6 flex items-center gap-3 min-w-0">
+      <div className="col-span-6 flex items-center gap-3.5 min-w-0">
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs"
           style={{ background: bg, border: `1px solid ${border}` }}
         >
-          <Icon className="h-4.5 w-4.5" style={{ color }} />
+          <Icon className="h-5 w-5" style={{ color }} />
         </div>
         <div className="flex flex-col min-w-0">
           <span
-            className="truncate text-sm font-medium text-text-primary"
+            className="truncate text-xs font-bold text-text-primary"
             title={item.originalName || item.name}
           >
             {item.originalName || item.name}
@@ -389,15 +407,21 @@ function FileCardList({
         </div>
       </div>
 
-      <div className="col-span-2 hidden sm:block text-xs font-medium text-text-muted">
-        {isFolder ? '—' : formatSize(item.size)}
+      <div className="col-span-2 hidden sm:flex items-center gap-2 text-xs font-medium text-text-muted">
+        <span
+          className="rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase"
+          style={{ background: bg, color }}
+        >
+          {badge}
+        </span>
+        <span>{isFolder ? '—' : formatSize(item.size)}</span>
       </div>
 
-      <div className="col-span-3 hidden md:block text-xs text-text-muted">
+      <div className="col-span-3 hidden md:block text-xs text-text-muted font-medium">
         {formatDate(item.createdAt || item.updatedAt)}
       </div>
 
-      <div className="col-span-1 flex justify-end relative items-center gap-1">
+      <div className="col-span-1 flex justify-end relative items-center gap-1.5">
         {!isTrashView && (
           <>
             {!isFolder && (
@@ -407,7 +431,7 @@ function FileCardList({
                   onShareClick && onShareClick(item);
                 }}
                 title="Share"
-                className="hidden sm:inline-flex rounded-lg p-1.5 text-text-muted hover:bg-surface-3 hover:text-primary transition-all cursor-pointer"
+                className="hidden sm:inline-flex rounded-xl p-2 text-text-muted hover:bg-surface-3 hover:text-indigo-500 transition-all cursor-pointer"
               >
                 <Share2 className="h-4 w-4" />
               </button>
@@ -417,7 +441,7 @@ function FileCardList({
                 e.stopPropagation();
                 setActiveMenu(activeMenu === item.id ? null : item.id);
               }}
-              className="rounded-lg p-1.5 text-text-muted hover:bg-surface-3 hover:text-text-primary transition-all cursor-pointer"
+              className="rounded-xl p-2 text-text-muted hover:bg-surface-3 hover:text-text-primary transition-all cursor-pointer"
               aria-label="More options"
             >
               <MoreVertical className="h-4 w-4" />
@@ -437,7 +461,7 @@ function FileCardList({
           isTrashView={isTrashView}
           onRestoreClick={onRestoreClick}
           onDeleteClick={onDeleteClick}
-          position="top-8 right-0"
+          position="top-10 right-0"
         />
       </div>
     </div>
@@ -471,22 +495,22 @@ function ContextDropdown({
 
   return (
     <div
-      className={`absolute ${position} z-50 w-48 context-menu py-1.5 animate-fadeInUp`}
+      className={`absolute ${position} z-50 w-52 context-menu p-1.5 animate-scaleIn`}
       onClick={(e) => e.stopPropagation()}
     >
       {isTrashView ? (
         <>
           <MenuItem
             icon={<Move className="h-4 w-4 text-emerald-500" />}
-            label="Restore"
+            label="Restore Item"
             onClick={(e) => handleAction(e, onRestoreClick)}
-            className="text-emerald-500 hover:text-emerald-600"
+            className="text-emerald-500 hover:bg-emerald-500/10"
           />
           <MenuItem
-            icon={<Trash2 className="h-4 w-4 text-red-500" />}
+            icon={<Trash2 className="h-4 w-4 text-rose-500" />}
             label="Delete Forever"
             onClick={(e) => handleAction(e, onDeleteClick)}
-            className="text-red-500 hover:text-red-600"
+            className="text-rose-500 hover:bg-rose-500/10"
           />
         </>
       ) : (
@@ -495,16 +519,16 @@ function ContextDropdown({
             <>
               <MenuItem
                 icon={<Share2 className="h-4 w-4 text-indigo-500" />}
-                label="Share"
+                label="Share File"
                 onClick={(e) => handleAction(e, onShareClick)}
               />
               <MenuItem
                 icon={<Link2 className="h-4 w-4 text-purple-500" />}
-                label="Copy Link"
+                label="Copy Public Link"
                 onClick={(e) => handleAction(e, onPublicLinkClick)}
               />
               <MenuItem
-                icon={<Move className="h-4 w-4 text-emerald-500" />}
+                icon={<Move className="h-4 w-4 text-cyan-500" />}
                 label="Move to Folder"
                 onClick={(e) => handleAction(e, onMoveClick)}
               />
@@ -517,10 +541,10 @@ function ContextDropdown({
           />
           <div className="my-1 border-t border-border" />
           <MenuItem
-            icon={<Trash2 className="h-4 w-4 text-red-500" />}
+            icon={<Trash2 className="h-4 w-4 text-rose-500" />}
             label="Move to Trash"
             onClick={(e) => handleAction(e, onTrashClick)}
-            className="text-red-500 hover:text-red-600"
+            className="text-rose-500 hover:bg-rose-500/10"
           />
         </>
       )}
@@ -528,11 +552,11 @@ function ContextDropdown({
   );
 }
 
-function MenuItem({ icon, label, onClick, className = 'text-text-secondary hover:text-text-primary' }) {
+function MenuItem({ icon, label, onClick, className = 'text-text-secondary hover:text-text-primary hover:bg-surface-2' }) {
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-xs font-medium transition-colors hover:bg-surface-2 cursor-pointer ${className}`}
+      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${className}`}
     >
       {icon}
       <span>{label}</span>
