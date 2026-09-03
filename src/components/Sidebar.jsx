@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  HardDrive, Trash2, Users, X, LogOut, ChevronRight,
-  Upload, FolderPlus, ShieldCheck, Database, Sparkles
+  HardDrive, Trash2, Users, X, LogOut, ChevronRight, Upload
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import ThemeToggle from './ThemeToggle';
@@ -144,31 +143,6 @@ export default function Sidebar({ isOpen, setIsOpen, onUploadClick, onCreateFold
             );
           })}
         </nav>
-
-        {/* Storage Widget */}
-        <div className="px-4 pb-4">
-          <div className="rounded-2xl border border-border bg-surface-2/70 p-4 backdrop-blur-md">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-primary" />
-                <span className="text-xs font-bold text-text-primary">Cloud Storage</span>
-              </div>
-              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                Active
-              </span>
-            </div>
-
-            {/* Storage Progress bar */}
-            <div className="storage-bar h-2 w-full mb-2">
-              <div className="storage-fill h-full" style={{ width: '28%' }} />
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-text-muted">
-              <span>4.2 GB used</span>
-              <span>15 GB total</span>
-            </div>
-          </div>
-        </div>
 
         {/* Footer User Profile & Actions */}
         <div className="border-t border-border p-3.5 flex items-center justify-between gap-2 bg-surface-2/30">
