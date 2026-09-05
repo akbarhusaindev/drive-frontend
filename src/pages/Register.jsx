@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Mail, Lock, User, ShieldCheck, CheckCircle2, Server } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Server } from 'lucide-react';
 import { authService } from '../services/authService';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
@@ -19,7 +19,6 @@ export default function Register() {
   const { resolvedTheme } = useTheme();
   const timerRef = useRef(null);
 
-  // Pre-warm backend when user lands on Register page
   useEffect(() => {
     authService.warmUpServer();
   }, []);
@@ -36,7 +35,6 @@ export default function Register() {
     setLoading(true);
     setSlowServerMessage(false);
 
-    // If server cold start takes more than 2.5s, inform the user
     timerRef.current = setTimeout(() => {
       setSlowServerMessage(true);
     }, 2500);
@@ -44,18 +42,18 @@ export default function Register() {
     try {
       const { data } = await authService.register(name.trim(), email.trim(), password);
       localStorage.setItem('token', data.token);
-      toast.success('Account created! Welcome to Cloud Drive 🎉');
+      toast.success('Account created successfully');
       navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout') || err.message?.includes('Network Error')) {
-        toast.error('Server is waking up. Please wait a moment and try again.');
+        toast.error('Server is waking up. Please try once more.');
       } else if (err.response?.status === 409) {
-        toast.error('An account with this email address already exists.');
+        toast.error('An account with this email already exists.');
       } else if (err.response?.data?.message) {
         toast.error(err.response.data.message);
       } else {
-        toast.error('Registration failed. Please check your details and try again.');
+        toast.error('Registration failed. Please try again.');
       }
     } finally {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -65,184 +63,141 @@ export default function Register() {
   };
 
   return (
-    <div
-      className="relative flex min-h-screen items-center justify-center p-4 selection:bg-indigo-500/20 selection:text-indigo-400 transition-colors duration-300 bg-grid-pattern"
-      style={{ background: 'var(--auth-bg)' }}
-    >
+    <div className="relative flex min-h-screen items-center justify-center p-4 bg-[var(--bg-app)]">
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: resolvedTheme === 'dark' ? '#14162d' : '#ffffff',
-            color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
-            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
-            borderRadius: '16px',
-            boxShadow: '0 16px 36px -8px rgba(0,0,0,0.25)',
-            fontSize: '13px',
-            fontWeight: 600,
+            background: resolvedTheme === 'dark' ? '#18181c' : '#ffffff',
+            color: resolvedTheme === 'dark' ? '#f4f4f5' : '#0f172a',
+            border: resolvedTheme === 'dark' ? '1px solid #27272a' : '1px solid #e2e8f0',
+            borderRadius: '10px',
+            fontSize: '12px',
+            fontWeight: 500,
           },
         }}
       />
 
-      {/* Floating Theme Toggle at top right */}
-      <div className="absolute top-6 right-6 z-20">
+      <div className="absolute top-4 right-4 z-10">
         <ThemeToggle variant="button" />
       </div>
 
-      {/* Decorative ambient glowing orbs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-[550px] w-[550px] rounded-full bg-purple-500/15 blur-[140px] dark:bg-purple-600/25 animate-float" />
-        <div className="absolute -bottom-40 -left-40 h-[550px] w-[550px] rounded-full bg-indigo-500/15 blur-[140px] dark:bg-indigo-600/25 animate-float" />
-      </div>
-
-      <div className="relative w-full max-w-md animate-fadeInUp">
-        {/* Brand Logo & Title */}
-        <div className="mb-8 text-center flex flex-col items-center">
-          <Logo size="lg" to={null} className="mb-3" />
-          <p className="text-text-muted text-xs font-medium max-w-xs">
-            Create your free account with 15 GB of cloud storage
+      <div className="w-full max-w-sm animate-fadeInUp">
+        {/* Brand Header */}
+        <div className="mb-6 text-center">
+          <Logo size="md" to="/dashboard" className="mb-4" />
+          <h1 className="text-xl font-bold tracking-tight text-text-primary">
+            Create an account
+          </h1>
+          <p className="text-xs text-text-muted mt-1">
+            Start using Cloud Drive today
           </p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-3xl border border-border/80 bg-surface/90 p-8 shadow-2xl backdrop-blur-2xl">
-          <form onSubmit={handleRegister} className="space-y-4">
-            {/* Full Name */}
+        {/* Form Card */}
+        <div className="modern-card rounded-2xl p-6 shadow-sm">
+          <form onSubmit={handleRegister} className="space-y-3.5">
+            {/* Name */}
             <div>
-              <label className="mb-2 block text-xs font-bold text-text-secondary">Full Name</label>
+              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                Full Name
+              </label>
               <div className="relative">
-                <User className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
                 <input
                   id="register-name"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Jane Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs disabled:opacity-60"
+                  className="input-theme w-full rounded-lg py-2 pl-9 pr-3 text-xs"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="mb-2 block text-xs font-bold text-text-secondary">Email Address</label>
+              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                Email
+              </label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
                 <input
                   id="register-email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs disabled:opacity-60"
+                  className="input-theme w-full rounded-lg py-2 pl-9 pr-3 text-xs"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="mb-2 block text-xs font-bold text-text-secondary">Password</label>
+              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                Password
+              </label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
                 <input
                   id="register-password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="•••••••• (min. 6 chars)"
+                  placeholder="•••••••• (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-11 text-xs font-medium shadow-xs disabled:opacity-60"
+                  className="input-theme w-full rounded-lg py-2 pl-9 pr-9 text-xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary p-0.5 rounded cursor-pointer"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
               </div>
-
-              {/* Password strength meter */}
-              {password.length > 0 && (
-                <div className="mt-3 space-y-1.5">
-                  <div className="flex gap-1.5">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                          i < Math.min(Math.floor(password.length / 3), 4)
-                            ? password.length < 6
-                              ? 'bg-rose-500'
-                              : password.length < 9
-                              ? 'bg-amber-500'
-                              : 'bg-emerald-500'
-                            : 'bg-surface-3'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-text-muted font-semibold">
-                    {password.length < 6
-                      ? 'Weak password'
-                      : password.length < 9
-                      ? 'Good password'
-                      : 'Strong password'}
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Server cold-start notice */}
+            {/* Slow Server Notice */}
             {slowServerMessage && (
-              <div className="flex items-center gap-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 p-3 text-xs text-indigo-400 animate-fadeInUp">
-                <Server className="h-4 w-4 shrink-0 animate-pulse text-indigo-400" />
-                <p className="leading-snug text-[11px]">
-                  Connecting to cloud server... Server is waking up from idle mode, please wait a moment.
+              <div className="flex items-center gap-2 rounded-lg bg-blue-500/10 border border-blue-500/20 p-2.5 text-xs text-blue-600 dark:text-blue-400">
+                <Server className="h-4 w-4 shrink-0 animate-pulse" />
+                <p className="text-[11px] leading-tight">
+                  Server is waking up from idle mode, please hold on...
                 </p>
               </div>
             )}
 
-            {/* Submit button */}
+            {/* Submit */}
             <button
               id="register-submit"
               type="submit"
               disabled={loading}
-              className="btn-primary mt-3 w-full rounded-2xl py-3.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-indigo-500/25"
+              className="btn-primary w-full rounded-lg py-2 text-xs font-semibold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer mt-1"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{slowServerMessage ? 'Waking up server...' : 'Creating Account...'}</span>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Creating Account...</span>
                 </>
               ) : (
-                'Create Free Account'
+                'Create Account'
               )}
             </button>
           </form>
 
-          {/* Trust badges */}
-          <div className="mt-6 pt-5 border-t border-border flex items-center justify-around text-[10px] text-text-muted font-semibold">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              <span>15 GB Free Storage</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
-              <span>Encrypted</span>
-            </div>
-          </div>
-
-          {/* Footer link */}
-          <div className="mt-5 text-center">
-            <p className="text-xs text-text-muted font-medium">
+          {/* Footer */}
+          <div className="mt-4 pt-4 border-t border-border text-center">
+            <p className="text-xs text-text-muted">
               Already have an account?{' '}
-              <Link to="/login" className="font-bold text-primary hover:underline transition-colors">
+              <Link to="/login" className="font-semibold text-primary hover:underline">
                 Sign in
               </Link>
             </p>

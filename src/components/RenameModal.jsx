@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Edit2, Loader2 } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { fileService } from '../services/fileService';
 import { folderService } from '../services/folderService';
 import toast from 'react-hot-toast';
@@ -24,7 +24,7 @@ export default function RenameModal({ isOpen, onClose, item, onRenamed }) {
       } else {
         await fileService.renameFile(item.id, trimmed);
       }
-      toast.success('Renamed successfully');
+      toast.success('Renamed');
       onRenamed && onRenamed();
       onClose();
     } catch (err) {
@@ -39,53 +39,45 @@ export default function RenameModal({ isOpen, onClose, item, onRenamed }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fadeInUp">
-      <div className="w-full max-w-md rounded-3xl border border-border bg-surface/95 p-7 shadow-2xl backdrop-blur-2xl">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-500 shadow-xs">
-              <Edit2 className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold font-heading text-text-primary">Rename Item</h2>
-              <p className="text-xs text-text-muted">Enter a new name for this {item.type === 'folder' ? 'folder' : 'file'}</p>
-            </div>
-          </div>
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-5 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-text-primary">Rename</h2>
           <button
             onClick={onClose}
-            className="rounded-xl p-2 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
-            aria-label="Close modal"
+            className="rounded-lg p-1 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
+            aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         <form onSubmit={handleRename}>
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-text-secondary mb-2">New Name</label>
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-text-muted mb-1.5">New Name</label>
             <input
               id="rename-input"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
-              className="input-theme w-full rounded-2xl px-4 py-3 text-xs font-medium shadow-xs"
+              className="input-theme w-full rounded-lg px-3 py-2 text-xs"
             />
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 btn-secondary rounded-2xl py-3 text-xs font-bold cursor-pointer"
+              className="btn-secondary rounded-lg px-3.5 py-1.5 text-xs font-medium cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!name.trim() || loading}
-              className="flex-1 btn-primary rounded-2xl py-3 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="btn-primary rounded-lg px-3.5 py-1.5 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+              {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
             </button>
           </div>
         </form>

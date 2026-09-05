@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { shareService } from '../services/shareService';
 import { getFileIconInfo, formatSize, formatDate } from '../utils/formatters';
 import { useTheme } from '../context/ThemeContext';
-import { Loader2, Users, Download, Eye, Shield } from 'lucide-react';
+import { Loader2, Download, Eye } from 'lucide-react';
 import { fileService } from '../services/fileService';
 import toast from 'react-hot-toast';
 
@@ -44,7 +44,7 @@ export default function Shared() {
       document.body.removeChild(link);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to view file');
+      toast.error('Failed to open file');
     }
   };
 
@@ -59,7 +59,7 @@ export default function Shared() {
       link.click();
       document.body.removeChild(link);
     } catch {
-      toast.error('Failed to get download link');
+      toast.error('Failed to download file');
     }
   };
 
@@ -69,13 +69,12 @@ export default function Shared() {
         position="top-right"
         toastOptions={{
           style: {
-            background: resolvedTheme === 'dark' ? '#14162d' : '#ffffff',
-            color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
-            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
-            borderRadius: '16px',
-            boxShadow: '0 16px 36px -8px rgba(0,0,0,0.25)',
-            fontSize: '13px',
-            fontWeight: 600,
+            background: resolvedTheme === 'dark' ? '#18181c' : '#ffffff',
+            color: resolvedTheme === 'dark' ? '#f4f4f5' : '#0f172a',
+            border: resolvedTheme === 'dark' ? '1px solid #27272a' : '1px solid #e2e8f0',
+            borderRadius: '10px',
+            fontSize: '12px',
+            fontWeight: 500,
           },
         }}
       />
@@ -90,35 +89,24 @@ export default function Shared() {
           onCreateFolderClick={() => {}}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-grid-pattern">
-          {/* Header */}
-          <div className="mb-8 flex items-center gap-3.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-500 shadow-md">
-              <Users className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold font-heading tracking-tight text-text-primary">
-                Shared with me
-              </h1>
-              <p className="text-xs text-text-muted mt-0.5 font-medium">
-                Files and documents shared with your account for collaboration
-              </p>
-            </div>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <div className="mb-4">
+            <h1 className="text-xl font-bold tracking-tight text-text-primary">
+              Shared with me
+            </h1>
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 gap-4 animate-fadeInUp">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-500/10 text-indigo-500 shadow-md">
-                <Loader2 className="h-7 w-7 animate-spin text-primary" />
-              </div>
-              <p className="text-xs font-bold text-text-muted">Loading shared documents...</p>
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <p className="text-xs text-text-muted">Loading shared files...</p>
             </div>
           ) : shares.length === 0 ? (
             <EmptyState type="shared" />
           ) : (
-            <div className="space-y-3">
-              {/* Table header */}
-              <div className="grid grid-cols-12 gap-4 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+            <div className="flex flex-col">
+              {/* Header */}
+              <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[11px] font-medium uppercase tracking-wider text-text-muted border-b border-border">
                 <div className="col-span-4">Name</div>
                 <div className="col-span-2 hidden sm:block">Size</div>
                 <div className="col-span-2 hidden sm:block">Permission</div>
@@ -126,78 +114,77 @@ export default function Shared() {
                 <div className="col-span-2 text-right">Actions</div>
               </div>
 
-              {shares.map((share) => {
-                const file = share.file;
-                if (!file) return null;
-                const { Icon, color, bg, border } = getFileIconInfo({ ...file, type: 'file' });
-                const canEdit = share.permission === 'EDITOR';
+              <div className="divide-y divide-border/60">
+                {shares.map((share) => {
+                  const file = share.file;
+                  if (!file) return null;
+                  const { Icon, color } = getFileIconInfo({ ...file, type: 'file' });
+                  const canEdit = share.permission === 'EDITOR';
 
-                return (
-                  <div
-                    key={share.id}
-                    className="glass grid grid-cols-12 gap-4 items-center rounded-2xl px-5 py-3.5 border border-border/70 hover:border-indigo-500/30 transition-all animate-fadeInUp"
-                  >
-                    {/* File name + icon */}
-                    <div className="col-span-4 flex items-center gap-3.5 min-w-0">
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs"
-                        style={{ background: bg, border: `1px solid ${border}` }}
-                      >
-                        <Icon className="h-5 w-5" style={{ color }} />
+                  return (
+                    <div
+                      key={share.id}
+                      className="grid grid-cols-12 gap-3 items-center px-3 py-2.5 hover:bg-surface-2/60 transition-colors"
+                    >
+                      {/* Name */}
+                      <div className="col-span-4 flex items-center gap-2.5 min-w-0">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-2">
+                          <Icon className="h-4 w-4" style={{ color }} />
+                        </div>
+                        <span className="truncate text-xs font-medium text-text-primary" title={file.originalName}>
+                          {file.originalName}
+                        </span>
                       </div>
-                      <span className="truncate text-xs font-bold text-text-primary" title={file.originalName}>
-                        {file.originalName}
-                      </span>
-                    </div>
 
-                    {/* Size */}
-                    <div className="col-span-2 hidden sm:block text-xs font-medium text-text-muted">
-                      {formatSize(file.size)}
-                    </div>
+                      {/* Size */}
+                      <div className="col-span-2 hidden sm:block text-xs text-text-muted">
+                        {formatSize(file.size)}
+                      </div>
 
-                    {/* Permission badge */}
-                    <div className="col-span-2 hidden sm:block">
-                      <span
-                        className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold ${
-                          canEdit
-                            ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                            : 'bg-primary/15 text-primary border border-primary/30'
-                        }`}
-                      >
-                        {canEdit ? 'Can Edit' : 'Can View'}
-                      </span>
-                    </div>
-
-                    {/* Shared by */}
-                    <div className="col-span-2 hidden md:block text-xs text-text-muted font-medium truncate">
-                      {share.sharedBy?.email || '—'}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="col-span-2 flex justify-end gap-1.5">
-                      <button
-                        onClick={() => handleView(share)}
-                        title="View file"
-                        className="rounded-xl p-2 text-text-muted hover:bg-surface-3 hover:text-primary transition-all cursor-pointer"
-                        aria-label="View file"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-
-                      {canEdit && (
-                        <button
-                          onClick={() => handleDownload(share)}
-                          title="Download file"
-                          className="rounded-xl p-2 text-text-muted hover:bg-surface-3 hover:text-emerald-500 transition-all cursor-pointer"
-                          aria-label="Download file"
+                      {/* Permission */}
+                      <div className="col-span-2 hidden sm:block">
+                        <span
+                          className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium ${
+                            canEdit
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                              : 'bg-surface-2 text-text-secondary'
+                          }`}
                         >
-                          <Download className="h-4 w-4" />
+                          {canEdit ? 'Can Edit' : 'Can View'}
+                        </span>
+                      </div>
+
+                      {/* Shared By */}
+                      <div className="col-span-2 hidden md:block text-xs text-text-muted truncate">
+                        {share.sharedBy?.email || '—'}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="col-span-2 flex justify-end gap-1">
+                        <button
+                          onClick={() => handleView(share)}
+                          title="View file"
+                          className="rounded p-1 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
+                          aria-label="View"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
                         </button>
-                      )}
+
+                        {canEdit && (
+                          <button
+                            onClick={() => handleDownload(share)}
+                            title="Download file"
+                            className="rounded p-1 text-text-muted hover:bg-surface-2 hover:text-text-primary transition-colors cursor-pointer"
+                            aria-label="Download"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </main>

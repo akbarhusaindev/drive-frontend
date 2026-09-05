@@ -16,7 +16,7 @@ import { folderService } from '../services/folderService';
 import { searchService } from '../services/searchService';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
-import { Loader2, HardDrive, Folder, FileText, Sparkles, Upload } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -137,7 +137,7 @@ export default function Dashboard() {
       document.body.removeChild(link);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to view file');
+      toast.error('Failed to open file');
     }
   };
 
@@ -161,32 +161,24 @@ export default function Dashboard() {
     ? currentFolder.name
     : 'My Drive';
 
-  const folderCount = items.filter((i) => i.type === 'folder').length;
-  const fileCount = items.filter((i) => i.type !== 'folder').length;
-
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-app)] text-[var(--text-primary)]">
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: resolvedTheme === 'dark' ? '#14162d' : '#ffffff',
-            color: resolvedTheme === 'dark' ? '#f8fafc' : '#0f172a',
-            border: resolvedTheme === 'dark' ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)',
-            borderRadius: '16px',
-            boxShadow: '0 16px 36px -8px rgba(0,0,0,0.25)',
-            fontSize: '13px',
-            fontWeight: 600,
+            background: resolvedTheme === 'dark' ? '#18181c' : '#ffffff',
+            color: resolvedTheme === 'dark' ? '#f4f4f5' : '#0f172a',
+            border: resolvedTheme === 'dark' ? '1px solid #27272a' : '1px solid #e2e8f0',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            fontSize: '12px',
+            fontWeight: 500,
           },
         }}
       />
 
-      <Sidebar
-        isOpen={isSidebarOpen}
-        setIsOpen={setIsSidebarOpen}
-        onUploadClick={() => setIsUploadOpen(true)}
-        onCreateFolderClick={() => setIsCreateFolderOpen(true)}
-      />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <Topbar
@@ -197,51 +189,24 @@ export default function Dashboard() {
           onCreateFolderClick={() => setIsCreateFolderOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 bg-grid-pattern">
-          {/* Header & Quick stats */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl md:text-3xl font-extrabold font-heading tracking-tight text-text-primary">
-                  {pageTitle}
-                </h1>
-              </div>
-              {!debouncedQuery && !currentFolder && (
-                <p className="text-xs text-text-muted mt-1 font-medium">
-                  High-speed storage, secure encryption, and seamless team collaboration.
-                </p>
-              )}
-            </div>
-
-            {/* Quick Metrics Bar */}
-            {!debouncedQuery && !loading && items.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface/80 px-3.5 py-1.5 backdrop-blur-md shadow-xs">
-                  <Folder className="h-3.5 w-3.5 text-purple-500" />
-                  <span className="text-xs font-bold text-text-primary">{folderCount}</span>
-                  <span className="text-[10px] text-text-muted">Folders</span>
-                </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface/80 px-3.5 py-1.5 backdrop-blur-md shadow-xs">
-                  <FileText className="h-3.5 w-3.5 text-indigo-500" />
-                  <span className="text-xs font-bold text-text-primary">{fileCount}</span>
-                  <span className="text-[10px] text-text-muted">Files</span>
-                </div>
-              </div>
-            )}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          {/* Header */}
+          <div className="mb-4">
+            <h1 className="text-xl font-bold tracking-tight text-text-primary">
+              {pageTitle}
+            </h1>
           </div>
 
-          {/* Breadcrumb navigation */}
+          {/* Breadcrumbs */}
           {!debouncedQuery && (
             <Breadcrumbs path={path} onNavigate={handleBreadcrumbNavigate} />
           )}
 
-          {/* Content view */}
+          {/* Content */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 gap-4 animate-fadeInUp">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-indigo-500/10 text-indigo-500 shadow-md">
-                <Loader2 className="h-7 w-7 animate-spin text-primary" />
-              </div>
-              <p className="text-xs font-bold text-text-muted">Accessing your cloud storage...</p>
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <p className="text-xs text-text-muted">Loading files...</p>
             </div>
           ) : items.length === 0 ? (
             <EmptyState
