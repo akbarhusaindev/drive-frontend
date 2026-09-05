@@ -1,4 +1,4 @@
-import api from './api';
+import api, { warmUpServer } from './api';
 
 export const authService = {
   // RegisterRequest has: name, email, password
@@ -15,4 +15,5 @@ export const authService = {
 
   getToken: () => localStorage.getItem('token'),
   isAuthenticated: () => !!localStorage.getItem('token'),
+  warmUpServer: () => warmUpServer(),
 };

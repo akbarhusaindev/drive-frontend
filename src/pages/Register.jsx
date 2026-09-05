@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, Mail, Lock, User, ShieldCheck, CheckCircle2, Zap } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, ShieldCheck, CheckCircle2, Server } from 'lucide-react';
 import { authService } from '../services/authService';
 import ThemeToggle from '../components/ThemeToggle';
 import Logo from '../components/Logo';
@@ -14,27 +14,53 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [slowServerMessage, setSlowServerMessage] = useState(false);
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
+  const timerRef = useRef(null);
+
+  // Pre-warm backend when user lands on Register page
+  useEffect(() => {
+    authService.warmUpServer();
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     if (password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
+
     setLoading(true);
+    setSlowServerMessage(false);
+
+    // If server cold start takes more than 2.5s, inform the user
+    timerRef.current = setTimeout(() => {
+      setSlowServerMessage(true);
+    }, 2500);
+
     try {
-      const { data } = await authService.register(name, email, password);
+      const { data } = await authService.register(name.trim(), email.trim(), password);
       localStorage.setItem('token', data.token);
       toast.success('Account created! Welcome to Cloud Drive 🎉');
       navigate('/dashboard');
     } catch (err) {
-      console.error(err);
-      const msg = err.response?.data?.message || 'Registration failed';
-      toast.error(msg);
+      console.error('Registration error:', err);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout') || err.message?.includes('Network Error')) {
+        toast.error('Server is waking up. Please wait a moment and try again.');
+      } else if (err.response?.status === 409) {
+        toast.error('An account with this email address already exists.');
+      } else if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error('Registration failed. Please check your details and try again.');
+      }
     } finally {
+      if (timerRef.current) clearTimeout(timerRef.current);
       setLoading(false);
+      setSlowServerMessage(false);
     }
   };
 
@@ -92,8 +118,9 @@ export default function Register() {
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs"
+                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs disabled:opacity-60"
                 />
               </div>
             </div>
@@ -109,8 +136,9 @@ export default function Register() {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs"
+                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-medium shadow-xs disabled:opacity-60"
                 />
               </div>
             </div>
@@ -126,8 +154,9 @@ export default function Register() {
                   placeholder="•••••••• (min. 6 chars)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
                   required
-                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-11 text-xs font-medium shadow-xs"
+                  className="input-theme w-full rounded-2xl py-3.5 pl-11 pr-11 text-xs font-medium shadow-xs disabled:opacity-60"
                 />
                 <button
                   type="button"
@@ -169,16 +198,27 @@ export default function Register() {
               )}
             </div>
 
+            {/* Server cold-start notice */}
+            {slowServerMessage && (
+              <div className="flex items-center gap-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 p-3 text-xs text-indigo-400 animate-fadeInUp">
+                <Server className="h-4 w-4 shrink-0 animate-pulse text-indigo-400" />
+                <p className="leading-snug text-[11px]">
+                  Connecting to cloud server... Server is waking up from idle mode, please wait a moment.
+                </p>
+              </div>
+            )}
+
             {/* Submit button */}
             <button
               id="register-submit"
               type="submit"
               disabled={loading}
-              className="btn-primary mt-3 w-full rounded-2xl py-3.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-indigo-500/25"
+              className="btn-primary mt-3 w-full rounded-2xl py-3.5 text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-indigo-500/25"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Creating Account...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>{slowServerMessage ? 'Waking up server...' : 'Creating Account...'}</span>
                 </>
               ) : (
                 'Create Free Account'
