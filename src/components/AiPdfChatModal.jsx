@@ -135,7 +135,7 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
                   {file.originalName || file.name}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-                  <Sparkles className="h-2.5 w-2.5" /> Gemini AI
+                  <Sparkles className="h-2.5 w-2.5" /> AI Assistant
                 </span>
               </div>
               <p className="text-[11px] text-text-muted">
@@ -215,6 +215,23 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
                   <div className="whitespace-pre-wrap select-text">
                     {m.content}
                   </div>
+
+                  {m.isError && (
+                    <button
+                      onClick={() => {
+                        const lastUser = [...messages].reverse().find((x) => x.role === 'user');
+                        if (lastUser && lastUser.content !== 'Generate a summary of this PDF') {
+                          handleSend(lastUser.content);
+                        } else {
+                          handleSummarize();
+                        }
+                      }}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 bg-surface border border-border text-[11px] font-medium text-text-primary hover:bg-surface-2 transition-colors cursor-pointer"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      <span>Retry</span>
+                    </button>
+                  )}
 
                   {!isUser && !m.isError && (
                     <button

@@ -398,7 +398,7 @@ function FileCardGrid({
                   onAiChatClick && onAiChatClick(item);
                 }}
                 className="flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-                title="Ask Gemini AI about this PDF"
+                title="Ask AI about this PDF"
               >
                 <Sparkles className="h-3 w-3" />
                 <span>AI</span>
@@ -507,7 +507,7 @@ function FileCardList({
               onAiChatClick && onAiChatClick(item);
             }}
             className="hidden sm:inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors cursor-pointer shrink-0"
-            title="Ask Gemini AI about this PDF"
+            title="Ask AI about this PDF"
           >
             <Sparkles className="h-2.5 w-2.5" />
             <span>AI</span>
@@ -611,7 +611,7 @@ function ContextDropdown({
           {isPdf && (
             <MenuItem
               icon={<Sparkles className="h-3.5 w-3.5 text-primary" />}
-              label="Ask Gemini AI"
+              label="Ask AI"
               onClick={(e) => handleAction(e, onAiChatClick)}
               className="text-primary font-semibold hover:bg-primary/10"
             />
