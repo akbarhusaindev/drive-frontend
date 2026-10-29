@@ -9,6 +9,7 @@ import ShareModal from '../components/ShareModal';
 import RenameModal from '../components/RenameModal';
 import PublicLinkModal from '../components/PublicLinkModal';
 import MoveModal from '../components/MoveModal';
+import AiPdfChatModal from '../components/AiPdfChatModal';
 import EmptyState from '../components/EmptyState';
 import { Toaster } from 'react-hot-toast';
 import { fileService } from '../services/fileService';
@@ -41,6 +42,7 @@ export default function Dashboard() {
   const [renameItem, setRenameItem] = useState(null);
   const [publicLinkItem, setPublicLinkItem] = useState(null);
   const [moveItem, setMoveItem] = useState(null);
+  const [aiChatFile, setAiChatFile] = useState(null);
 
   // Debounce search query
   useEffect(() => {
@@ -225,6 +227,7 @@ export default function Dashboard() {
               onRenameClick={setRenameItem}
               onPublicLinkClick={setPublicLinkItem}
               onMoveClick={setMoveItem}
+              onAiChatClick={setAiChatFile}
             />
           )}
         </main>
@@ -264,6 +267,11 @@ export default function Dashboard() {
         onClose={() => setMoveItem(null)}
         item={moveItem}
         onMoved={fetchItems}
+      />
+      <AiPdfChatModal
+        isOpen={!!aiChatFile}
+        onClose={() => setAiChatFile(null)}
+        file={aiChatFile}
       />
     </div>
   );

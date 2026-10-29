@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   LayoutGrid, List, MoreVertical, Share2, Trash2, Edit2, Link2, Move,
   ArrowUp, ArrowDown, Folder, FileText, Image, Film, Archive,
-  FileCode, Layers, Download
+  FileCode, Layers, Download, Sparkles
 } from 'lucide-react';
 import { getFileIconInfo, formatSize, formatDate } from '../utils/formatters';
 
@@ -25,6 +25,7 @@ export default function FileGrid({
   onRenameClick,
   onPublicLinkClick,
   onMoveClick,
+  onAiChatClick,
   isTrashView = false,
   onRestoreClick,
   onDeleteClick,
@@ -243,6 +244,7 @@ export default function FileGrid({
                     onRenameClick={onRenameClick}
                     onPublicLinkClick={onPublicLinkClick}
                     onMoveClick={onMoveClick}
+                    onAiChatClick={onAiChatClick}
                     isTrashView={isTrashView}
                     onRestoreClick={onRestoreClick}
                     onDeleteClick={onDeleteClick}
@@ -276,6 +278,7 @@ export default function FileGrid({
                 onRenameClick={onRenameClick}
                 onPublicLinkClick={onPublicLinkClick}
                 onMoveClick={onMoveClick}
+                onAiChatClick={onAiChatClick}
                 isTrashView={isTrashView}
                 onRestoreClick={onRestoreClick}
                 onDeleteClick={onDeleteClick}
@@ -360,11 +363,15 @@ function FileCardGrid({
   onRenameClick,
   onPublicLinkClick,
   onMoveClick,
+  onAiChatClick,
   isTrashView,
   onRestoreClick,
   onDeleteClick,
 }) {
   const { Icon, color, badge } = getFileIconInfo(item);
+  const isPdf =
+    item.mimeType === 'application/pdf' ||
+    (item.originalName || item.name || '').toLowerCase().endsWith('.pdf');
 
   return (
     <div
@@ -384,6 +391,20 @@ function FileCardGrid({
           </div>
 
           <div className="flex items-center gap-1">
+            {isPdf && !isTrashView && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAiChatClick && onAiChatClick(item);
+                }}
+                className="flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                title="Ask Gemini AI about this PDF"
+              >
+                <Sparkles className="h-3 w-3" />
+                <span>AI</span>
+              </button>
+            )}
+
             <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-text-muted">
               {badge}
             </span>
@@ -429,6 +450,7 @@ function FileCardGrid({
         onRenameClick={onRenameClick}
         onPublicLinkClick={onPublicLinkClick}
         onMoveClick={onMoveClick}
+        onAiChatClick={onAiChatClick}
         isTrashView={isTrashView}
         onRestoreClick={onRestoreClick}
         onDeleteClick={onDeleteClick}
@@ -449,12 +471,17 @@ function FileCardList({
   onRenameClick,
   onPublicLinkClick,
   onMoveClick,
+  onAiChatClick,
   isTrashView,
   onRestoreClick,
   onDeleteClick,
 }) {
   const { Icon, color } = getFileIconInfo(item);
   const isFolder = item.type === 'folder';
+  const isPdf =
+    !isFolder &&
+    (item.mimeType === 'application/pdf' ||
+      (item.originalName || item.name || '').toLowerCase().endsWith('.pdf'));
 
   return (
     <div
@@ -473,6 +500,19 @@ function FileCardList({
         >
           {item.originalName || item.name}
         </span>
+        {isPdf && !isTrashView && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAiChatClick && onAiChatClick(item);
+            }}
+            className="hidden sm:inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors cursor-pointer shrink-0"
+            title="Ask Gemini AI about this PDF"
+          >
+            <Sparkles className="h-2.5 w-2.5" />
+            <span>AI</span>
+          </button>
+        )}
       </div>
 
       <div className="col-span-2 hidden sm:block text-xs text-text-muted">
@@ -506,6 +546,7 @@ function FileCardList({
           onRenameClick={onRenameClick}
           onPublicLinkClick={onPublicLinkClick}
           onMoveClick={onMoveClick}
+          onAiChatClick={onAiChatClick}
           isTrashView={isTrashView}
           onRestoreClick={onRestoreClick}
           onDeleteClick={onDeleteClick}
@@ -526,6 +567,7 @@ function ContextDropdown({
   onRenameClick,
   onPublicLinkClick,
   onMoveClick,
+  onAiChatClick,
   isTrashView,
   onRestoreClick,
   onDeleteClick,
@@ -540,6 +582,10 @@ function ContextDropdown({
   };
 
   const isFolder = item.type === 'folder';
+  const isPdf =
+    !isFolder &&
+    (item.mimeType === 'application/pdf' ||
+      (item.originalName || item.name || '').toLowerCase().endsWith('.pdf'));
 
   return (
     <div
@@ -562,6 +608,14 @@ function ContextDropdown({
         </>
       ) : (
         <>
+          {isPdf && (
+            <MenuItem
+              icon={<Sparkles className="h-3.5 w-3.5 text-primary" />}
+              label="Ask Gemini AI"
+              onClick={(e) => handleAction(e, onAiChatClick)}
+              className="text-primary font-semibold hover:bg-primary/10"
+            />
+          )}
           {!isFolder && (
             <>
               <MenuItem

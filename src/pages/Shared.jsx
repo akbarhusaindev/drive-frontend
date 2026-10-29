@@ -9,13 +9,17 @@ import { getFileIconInfo, formatSize, formatDate } from '../utils/formatters';
 import { useTheme } from '../context/ThemeContext';
 import {
   Loader2, Download, Eye, ChevronDown, ChevronRight,
-  FolderOpen, Folder, User,
+  FolderOpen, Folder, User, Sparkles
 } from 'lucide-react';
+import AiPdfChatModal from '../components/AiPdfChatModal';
 import toast from 'react-hot-toast';
 
 /* ─── Single file row ─────────────────────────────────────────────────── */
-function SharedFileRow({ file, sharedBy }) {
+function SharedFileRow({ file, sharedBy, onAiChatClick }) {
   const { Icon, color } = getFileIconInfo({ ...file, type: 'file' });
+  const isPdf =
+    file.mimeType === 'application/pdf' ||
+    (file.originalName || file.name || '').toLowerCase().endsWith('.pdf');
 
   const handleView = async () => {
     try {
@@ -82,6 +86,16 @@ function SharedFileRow({ file, sharedBy }) {
 
       {/* Actions */}
       <div className="col-span-2 flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {isPdf && (
+          <button
+            onClick={() => onAiChatClick && onAiChatClick(file)}
+            title="Ask Gemini AI about this PDF"
+            className="rounded p-1 text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+            aria-label="Ask AI"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+          </button>
+        )}
         <button
           onClick={handleView}
           title="View file"
@@ -104,7 +118,7 @@ function SharedFileRow({ file, sharedBy }) {
 }
 
 /* ─── Collapsible sender folder ───────────────────────────────────────── */
-function SenderFolderCard({ folder }) {
+function SenderFolderCard({ folder, onAiChatClick }) {
   const [expanded, setExpanded] = useState(true);
   const files = folder.files ?? [];
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
@@ -154,6 +168,7 @@ function SenderFolderCard({ folder }) {
                 key={file.id}
                 file={file}
                 sharedBy={folder.folderName}
+                onAiChatClick={onAiChatClick}
               />
             ))}
           </div>
@@ -175,6 +190,7 @@ export default function Shared() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [aiChatFile, setAiChatFile] = useState(null);
   const { resolvedTheme } = useTheme();
 
   const fetchFolders = useCallback(async () => {
@@ -254,12 +270,22 @@ export default function Shared() {
           ) : (
             <div>
               {folders.map((folder) => (
-                <SenderFolderCard key={folder.folderId} folder={folder} />
+                <SenderFolderCard
+                  key={folder.folderId}
+                  folder={folder}
+                  onAiChatClick={setAiChatFile}
+                />
               ))}
             </div>
           )}
         </main>
       </div>
+
+      <AiPdfChatModal
+        isOpen={!!aiChatFile}
+        onClose={() => setAiChatFile(null)}
+        file={aiChatFile}
+      />
     </div>
   );
 }

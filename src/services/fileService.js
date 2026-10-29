@@ -49,4 +49,10 @@ export const fileService = {
   trashFile: (id) => api.post(`/trash/files/${id}`),
 
   getStorageUsage: () => api.get('/files/storage'),
+
+  /** AI PDF Q&A features */
+  getAiSummary: (fileId) => api.post(`/files/${fileId}/ai-summary`),
+
+  askAiQuestion: (fileId, question) =>
+    api.post(`/files/${fileId}/ai-chat`, { question }),
 };
