@@ -34,7 +34,7 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
       setMessages([
         {
           role: 'assistant',
-          content: `Hi! I'm your AI assistant for **${file.originalName || file.name}**. Ask me any question or click **Summarize Document** below.`,
+          content: `Hi! I'm your AI assistant for ${file.originalName || file.name}. Ask me any question or click Summarize Document below.`,
         },
       ]);
       setQuestion('');
@@ -55,9 +55,10 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
 
     try {
       const { data } = await fileService.getAiSummary(file.id);
+      const cleanSummary = (data.result || 'No summary returned.').replace(/\*\*/g, '');
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.result || 'No summary returned.' },
+        { role: 'assistant', content: cleanSummary },
       ]);
     } catch (err) {
       const msg =
@@ -68,7 +69,7 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
         ...prev,
         {
           role: 'assistant',
-          content: `⚠️ **Error:** ${msg}`,
+          content: `⚠️ Error: ${msg}`,
           isError: true,
         },
       ]);
@@ -89,9 +90,10 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
 
     try {
       const { data } = await fileService.askAiQuestion(file.id, q);
+      const cleanAnswer = (data.result || 'No response returned.').replace(/\*\*/g, '');
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.result || 'No response returned.' },
+        { role: 'assistant', content: cleanAnswer },
       ]);
     } catch (err) {
       const msg =
@@ -102,7 +104,7 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
         ...prev,
         {
           role: 'assistant',
-          content: `⚠️ **Error:** ${msg}`,
+          content: `⚠️ Error: ${msg}`,
           isError: true,
         },
       ]);
@@ -112,7 +114,8 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
   };
 
   const handleCopy = (text, idx) => {
-    navigator.clipboard.writeText(text);
+    const cleanText = (text || '').replace(/\*\*/g, '');
+    navigator.clipboard.writeText(cleanText);
     setCopiedIndex(idx);
     toast.success('Copied to clipboard');
     setTimeout(() => setCopiedIndex(null), 2000);
@@ -213,7 +216,7 @@ export default function AiPdfChatModal({ isOpen, onClose, file }) {
                   }`}
                 >
                   <div className="whitespace-pre-wrap select-text">
-                    {m.content}
+                    {(m.content || '').replace(/\*\*/g, '')}
                   </div>
 
                   {m.isError && (
